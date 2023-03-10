@@ -140,7 +140,7 @@ export function handleSelectEmoji({
   ) {
     return;
   }
-
+  console.log("emoji::::::::::::::::::::;",emoji);
   textInputRef.current.appendContent(getImageEmoji(emoji));
 
   if (!keepOpened) {
