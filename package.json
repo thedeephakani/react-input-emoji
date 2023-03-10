@@ -1,6 +1,6 @@
 {
   "name": "@thedeephakani/react-input-emoji",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "A React input with an option to add an emoji",
   "author": "cesarwbr",
   "license": "MIT",
