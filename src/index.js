@@ -251,6 +251,7 @@ function InputEmoji(props, ref) {
    * @param {string} html
    */
   function appendContent(html) {
+    console.log("appendContent:::::::::::::::::",html);
     if (
       typeof maxLength !== "undefined" &&
       textInputRef.current !== null &&

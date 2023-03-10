@@ -1,5 +1,5 @@
 {
-  "name": "react-input-emoji",
+  "name": "@thedeephakani/react-input-emoji",
   "version": "5.0.0",
   "description": "A React input with an option to add an emoji",
   "author": "cesarwbr",
