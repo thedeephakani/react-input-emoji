@@ -73,6 +73,7 @@ function InputEmoji(props, ref) {
     onFocus,
     onBlur,
     onKeyDown,
+    onSelect,
     theme,
     cleanOnEnter,
     placeholder,
@@ -250,8 +251,9 @@ function InputEmoji(props, ref) {
    *
    * @param {string} html
    */
-  function appendContent(html) {
-    console.log("appendContent:::::::::::::::::",html);
+  function appendContent(html, emoji) {
+    console.log("appendContent:::::::::::::::::",html,"::::emoji::::",emoji);
+    if(!!onSelect) onSelect(emoji);
     if (
       typeof maxLength !== "undefined" &&
       textInputRef.current !== null &&
@@ -265,59 +267,8 @@ function InputEmoji(props, ref) {
     }
   }
 
-  /**
-   * Handle copy of current selected text
-   * @param {React.ClipboardEvent} event
-   */
-  function handleCopy(event) {
-    event.clipboardData.setData("text", sanitizedTextRef.current);
-    event.preventDefault();
-  }
-
-  /**
-   * Handle past on input
-   * @param {React.ClipboardEvent} event
-   */
-  function handlePaste(event) {
-    event.preventDefault();
-    let content;
-    if (event.clipboardData) {
-      content = event.clipboardData.getData("text/plain");
-      content = pollute(content);
-      document.execCommand("insertHTML", false, content);
-    }
-  }
-
   return (
-    <div className="react-emoji">
-      <MentionWrapper
-        searchMention={searchMention}
-        addEventListener={addEventListener}
-        appendContent={appendContent}
-        addSanitizeFn={addSanitizeFn}
-      />
-      <TextInput
-        ref={textInputRef}
-        onCopy={handleCopy}
-        onPaste={handlePaste}
-        onBlur={listeners.blur.publish}
-        onFocus={listeners.focus.publish}
-        onArrowUp={listeners.arrowUp.publish}
-        onArrowDown={listeners.arrowDown.publish}
-        onKeyUp={listeners.keyUp.publish}
-        onKeyDown={listeners.keyDown.publish}
-        onEnter={listeners.enter.publish}
-        placeholder={placeholder}
-        style={{
-          borderRadius,
-          borderColor,
-          fontSize,
-          fontFamily
-        }}
-        tabIndex={tabIndex}
-        className={inputClass}
-        onChange={handleTextInputChange}
-      />
+    <div className="react-emoji">  
       <EmojiPickerWrapper
         theme={theme}
         keepOpened={keepOpened}

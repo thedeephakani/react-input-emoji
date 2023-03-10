@@ -103,7 +103,7 @@ const EmojiPickerWrapper = props => {
    */
   function handleSelectEmoji(emoji) {
     console.log("emoji::::::::::::::::;",emoji);
-    appendContent(getImageEmoji(emoji));
+    appendContent(getImageEmoji(emoji), emoji);
 
     if (!keepOpened) {
       setShowPicker(currentShowPicker => !currentShowPicker);

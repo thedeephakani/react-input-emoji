@@ -141,7 +141,7 @@ export function handleSelectEmoji({
     return;
   }
   console.log("emoji::::::::::::::::::::;",emoji);
-  textInputRef.current.appendContent(getImageEmoji(emoji));
+  textInputRef.current.appendContent(getImageEmoji(emoji), emoji);
 
   if (!keepOpened) {
     toggleShowPicker();
