@@ -102,6 +102,7 @@ const EmojiPickerWrapper = props => {
    * @param {import("../types/types").EmojiMartItem} emoji
    */
   function handleSelectEmoji(emoji) {
+    console.log("emoji::::::::::::::::;",emoji);
     appendContent(getImageEmoji(emoji));
 
     if (!keepOpened) {
