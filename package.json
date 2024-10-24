@@ -1,6 +1,6 @@
 {
   "name": "@thedeephakani/react-input-emoji",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "A React input with an option to add an emoji",
   "author": "cesarwbr",
   "license": "MIT",
@@ -61,7 +61,7 @@
     "jest": "^27.0.4",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "rollup": "^2.43.1",
+    "rollup": "^2.79.2",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-json": "^4.0.0",

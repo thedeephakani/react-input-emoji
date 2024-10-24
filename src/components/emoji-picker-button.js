@@ -19,7 +19,7 @@ function EmojiPickerButton({ showPicker, toggleShowPicker, buttonElement }) {
   const [showCustomButtonContent, setShowCustomButtonContent] = useState(false);
 
   useEffect(() => {
-    if ((buttonElement?.childNodes?.length ?? 0) > 2) {
+    if ((buttonElement?.childNodes?.length || 0) > 2) {
       buttonRef.current.appendChild(buttonElement?.childNodes[0]);
       setShowCustomButtonContent(true);
     }
