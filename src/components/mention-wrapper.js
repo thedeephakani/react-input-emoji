@@ -1,5 +1,4 @@
 // @ts-check
-/* eslint-disable react/prop-types */
 // vendors
 import React, { useEffect, useRef, useState } from "react";
 
@@ -25,7 +24,7 @@ import MentionUserList from "./mention-user-list";
  * @typedef {Object} Props
  * @property {(text: string) => Promise<MetionUser[]>=} searchMention
  * @property {(event: keyof TextInputListeners, fn: import('../types/types').Listerner<any>) => () => void} addEventListener
- * @property {(html: string) => void} appendContent
+ * @property {(html: string, emoji: any) => void} appendContent
  * @property {(fn: SanitizeFn) => void} addSanitizeFn
  */
 

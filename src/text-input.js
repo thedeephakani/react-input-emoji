@@ -1,8 +1,8 @@
 // @ts-check
-/* eslint-disable react/prop-types */
 // vendors
-import React, { useImperativeHandle, forwardRef, useRef } from "react";
-import { handlePasteHtmlAtCaret } from "./utils/input-event-utils";
+import React, { useImperativeHandle, forwardRef, useRef, useMemo } from "react";
+import { addLineBreak, handlePasteHtmlAtCaret } from "./utils/input-event-utils";
+import { replaceAllTextEmojiToString } from "./utils/emoji-utils";
 
 /**
  * @typedef {Object} Props
@@ -14,10 +14,11 @@ import { handlePasteHtmlAtCaret } from "./utils/input-event-utils";
  * @property {(event: React.KeyboardEvent) => void} onArrowUp
  * @property {(event: React.KeyboardEvent) => void} onArrowDown
  * @property {(event: React.KeyboardEvent) => void} onEnter
+ * @property {boolean} shouldReturn
  * @property {(event: React.ClipboardEvent) => void} onCopy
  * @property {(event: React.ClipboardEvent) => void} onPaste
  * @property {string} placeholder
- * @property {React.CSSProperties} style
+ * @property {{borderRadius?: number; color?: string; borderColor?: string; fontSize?: number; fontFamily?: string; background: string; placeholderColor?: string;}} style
  * @property {number} tabIndex
  * @property {string} className
  * @property {(html: string) => void} onChange
@@ -51,7 +52,7 @@ const TextInput = (
         textInputRef.current.focus();
       }
 
-      if (textInputRef.current && placeholderRef.current && textInputRef.current.innerHTML.trim() === "") {
+      if (textInputRef.current && placeholderRef.current && replaceAllTextEmojiToString(textInputRef.current.innerHTML) === "") {
         placeholderRef.current.style.visibility = "visible";
       } else if (placeholderRef.current) {
         placeholderRef.current.style.visibility = "hidden";
@@ -67,7 +68,8 @@ const TextInput = (
       }
       
       if (placeholderRef.current) {
-        if (value.trim() === "") {
+        const text = replaceAllTextEmojiToString(value)
+        if (text === "") {
           placeholderRef.current.style.visibility = "visible";
         } else {
           placeholderRef.current.style.visibility = "hidden";
@@ -108,6 +110,28 @@ const TextInput = (
     }
   }));
 
+  /** @type {React.CSSProperties} */
+  const placeholderStyle = useMemo(() => {
+    const placeholderStyle = {}
+
+    if (style.placeholderColor) {
+      placeholderStyle.color = style.placeholderColor
+    }
+
+    return placeholderStyle
+  }, [style?.placeholderColor])
+
+  /** @type {React.CSSProperties} */
+  const inputStyle = useMemo(() => {
+    const inputStyle = {}
+
+    if (style.color) {
+      inputStyle.color = style.color
+    }
+
+    return inputStyle
+  }, [style?.color])
+
   /** @type {React.MutableRefObject<HTMLDivElement | null>} */
   const placeholderRef = useRef(null);
   /** @type {React.MutableRefObject<HTMLDivElement | null>} */
@@ -117,7 +141,14 @@ const TextInput = (
    *
    * @param {React.KeyboardEvent} event
    */
-  function handleKeyDown(event) {
+  function handleKeyDown(event) {    
+    if (event.key === "Enter" && (event.shiftKey === true || event.ctrlKey === true) && props.shouldReturn) {
+      event.preventDefault();
+      if(textInputRef.current) {
+        addLineBreak()
+        return;
+      }
+    } 
     if (event.key === "Enter") {
       props.onEnter(event);
     } else if (event.key === "ArrowUp") {
@@ -147,8 +178,9 @@ const TextInput = (
 
     const input = textInputRef.current;
 
-    if (placeholderRef.current) {
-      if (input?.innerText?.trim() === "") {
+    if (placeholderRef.current && input) {
+      const text = replaceAllTextEmojiToString(input.innerHTML)
+      if (text === "") {
         placeholderRef.current.style.visibility = "visible";
       } else {
         placeholderRef.current.style.visibility = "hidden";
@@ -163,7 +195,7 @@ const TextInput = (
   return (
     <div className="react-input-emoji--container" style={style}>
       <div className="react-input-emoji--wrapper" onClick={handleClick}>
-        <div ref={placeholderRef} className="react-input-emoji--placeholder">
+        <div ref={placeholderRef} className="react-input-emoji--placeholder" style={placeholderStyle}>
           {placeholder}
         </div>
         <div
@@ -178,6 +210,7 @@ const TextInput = (
           onCopy={props.onCopy}
           onPaste={props.onPaste}
           data-testid="react-input-emoji--input"
+          style={inputStyle}
         />
       </div>
     </div>

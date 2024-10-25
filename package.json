@@ -1,12 +1,13 @@
 {
   "name": "@thedeephakani/react-input-emoji",
-  "version": "5.0.2",
-  "description": "A React input with an option to add an emoji",
+  "version": "5.9.0",
+  "description": "A React input with an option to add an emoji with language support.",
+  "homepage": "https://cesarwbr.github.io/react-input-emoji/",
   "author": "cesarwbr",
   "license": "MIT",
   "repository": "cesarwbr/react-input-emoji",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/src/index.d.ts",
   "keywords": [
     "emoji",
     "react",
@@ -22,14 +23,14 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
-    "build": "rollup -c",
+    "build": "tsc && rollup -c",
     "start": "rollup -c -w",
     "prepare": "yarn run build",
     "predeploy": "cd example && yarn install && yarn run build",
-    "deploy": "gh-pages -d example/build"
+    "deploy": "gh-pages -d example/build",
+    "gen:types": "tsc"
   },
   "peerDependencies": {
-    "prop-types": ">=15.7.2",
     "react": ">=17.0.x",
     "react-dom": ">=17.0.x"
   },
@@ -46,7 +47,7 @@
     "@testing-library/react": "^11.2.7",
     "@testing-library/react-hooks": "^7.0.0",
     "@testing-library/user-event": "^13.1.9",
-    "@types/emoji-mart": "^3.0.4",
+    "@types/emoji-mart": "^3.0.14",
     "@types/styled-components": "^5.1.9",
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
@@ -61,7 +62,7 @@
     "jest": "^27.0.4",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "rollup": "^2.79.2",
+    "rollup": "^2.43.1",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-json": "^4.0.0",
@@ -75,8 +76,9 @@
     "dist"
   ],
   "dependencies": {
-    "@emoji-mart/data": "1.1.2",
+    "@emoji-mart/data": "1.2.1",
     "@emoji-mart/react": "1.1.1",
-    "emoji-mart": "5.5.2"
+    "emoji-mart": "5.6.0",
+    "react-easy-emoji": "^1.8.1"
   }
 }

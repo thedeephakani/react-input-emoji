@@ -1,5 +1,4 @@
 // @ts-check
-/* eslint-disable react/prop-types */
 // vendors
 import React, { useEffect, useRef, forwardRef, useCallback } from "react";
 
@@ -8,7 +7,7 @@ import "./styles.css";
 
 // utils
 import { replaceAllTextEmojis } from "./utils/emoji-utils";
-import { totalCharacters } from "./utils/input-event-utils";
+import { handleCopy, totalCharacters } from "./utils/input-event-utils";
 
 // hooks
 import { useExpose } from "./hooks/use-expose";
@@ -34,28 +33,36 @@ import { usePollute } from "./hooks/user-pollute";
  * @typedef {object} Props
  * @property {string} value
  * @property {(value: string) => void} onChange
- * @property {"light" | "dark" | "auto"} theme
- * @property {boolean} cleanOnEnter
- * @property {(text: string) => void} onEnter
- * @property {string} placeholder
- * @property {(size: {width: number, height: number}) => void} onResize
- * @property {() => void} onClick
- * @property {() => void} onFocus
+ * @property {"light" | "dark" | "auto"=} theme
+ * @property {boolean=} cleanOnEnter
+ * @property {(text: string) => void=} onEnter
+ * @property {string=} placeholder
+ * @property {string=} placeholderColor
+ * @property {string=} color
+ * @property {(size: {width: number, height: number}) => void=} onResize
+ * @property {() => void=} onClick
+ * @property {() => void=} onFocus
  * @property {() => void=} onBlur
- * @property {number} maxLength
- * @property {boolean} keepOpened
- * @property {(event: KeyboardEvent) => void} onKeyDown
- * @property {string} inputClass
- * @property {boolean} disableRecent
- * @property {number} tabIndex
- * @property {number} height
- * @property {number} borderRadius
- * @property {string} borderColor
- * @property {number} fontSize
- * @property {string} fontFamily
+ * @property {boolean} shouldReturn
+ * @property {number=} maxLength
+ * @property {boolean=} keepOpened
+ * @property {(event: KeyboardEvent) => void=} onKeyDown
+ * @property {string=} inputClass
+ * @property {boolean=} disableRecent
+ * @property {number=} tabIndex
+ * @property {number=} height
+ * @property {number=} borderRadius
+ * @property {string=} borderColor
+ * @property {number=} fontSize
+ * @property {string=} fontFamily
+ * @property {string=} background
  * @property {{id: string; name: string; emojis: {id: string; name: string; keywords: string[], skins: {src: string}[]}}[]=} customEmojis
+ * @property {import('./types/types').Languages=} language
  * @property {(text: string) => Promise<MetionUser[]>=} searchMention
  * @property {HTMLDivElement=} buttonElement
+ * @property {React.MutableRefObject=} buttonRef
+ * @property {boolean} shouldConvertEmojiToImage
+ * @property {(emoji: any) => void} onSelect
  */
 
 /**
@@ -84,13 +91,20 @@ function InputEmoji(props, ref) {
     tabIndex,
     value,
     customEmojis,
+    language,
     searchMention,
     buttonElement,
+    buttonRef,
+    shouldReturn,
+    shouldConvertEmojiToImage,
     // style
     borderRadius,
     borderColor,
     fontSize,
-    fontFamily
+    fontFamily,
+    background,
+    placeholderColor,
+    color,
   } = props;
 
   /** @type {React.MutableRefObject<import('./text-input').Ref | null>} */
@@ -98,7 +112,7 @@ function InputEmoji(props, ref) {
 
   const { addEventListener, listeners } = useEventListeners();
 
-  const { addSanitizeFn, sanitize, sanitizedTextRef } = useSanitize();
+  const { addSanitizeFn, sanitize, sanitizedTextRef } = useSanitize(shouldReturn, shouldConvertEmojiToImage);
 
   const { addPolluteFn, pollute } = usePollute();
 
@@ -113,7 +127,11 @@ function InputEmoji(props, ref) {
   );
 
   const setValue = useCallback(
-    value => {
+    /**
+     * 
+     * @param {string} value
+     */
+    (value) => {
       updateHTML(value);
     },
     [updateHTML]
@@ -125,7 +143,8 @@ function InputEmoji(props, ref) {
     ref,
     setValue,
     textInputRef,
-    emitChange
+    emitChange,
+    shouldConvertEmojiToImage
   });
 
   useEffect(() => {
@@ -134,9 +153,9 @@ function InputEmoji(props, ref) {
     }
   }, [sanitizedTextRef, setValue, value]);
 
-  useEffect(() => {
-    updateHTML();
-  }, [updateHTML]);
+  // useEffect(() => {
+  //   updateHTML();
+  // }, [updateHTML]);
 
   useEffect(() => {
     /**
@@ -244,7 +263,10 @@ function InputEmoji(props, ref) {
    */
   function handleTextInputChange(html) {
     sanitize(html);
-    emitChange(sanitizedTextRef.current);
+
+    if (value !== sanitizedTextRef.current) {
+      emitChange(sanitizedTextRef.current);
+    }
   }
 
   /**
@@ -252,7 +274,6 @@ function InputEmoji(props, ref) {
    * @param {string} html
    */
   function appendContent(html, emoji) {
-    console.log("appendContent:::::::::::::::::",html,"::::emoji::::",emoji);
     if(!!onSelect) onSelect(emoji);
     if (
       typeof maxLength !== "undefined" &&
@@ -267,8 +288,22 @@ function InputEmoji(props, ref) {
     }
   }
 
+  /**
+   * Handle past on input
+   * @param {React.ClipboardEvent} event
+   */
+  function handlePaste(event) {
+    event.preventDefault();
+    let content;
+    if (event.clipboardData) {
+      content = event.clipboardData.getData("text/plain");
+      content = pollute(content);
+      document.execCommand("insertHTML", false, content);
+    }
+  }
+
   return (
-    <div className="react-emoji">  
+    <div className="react-emoji">
       <EmojiPickerWrapper
         theme={theme}
         keepOpened={keepOpened}
@@ -278,6 +313,8 @@ function InputEmoji(props, ref) {
         addPolluteFn={addPolluteFn}
         appendContent={appendContent}
         buttonElement={buttonElement}
+        buttonRef={buttonRef}
+        language={language}
       />
     </div>
   );
@@ -291,10 +328,15 @@ InputEmojiWithRef.defaultProps = {
   placeholder: "Type a message",
   borderRadius: 21,
   borderColor: "#EAEAEA",
+  color: "black",
   fontSize: 15,
   fontFamily: "sans-serif",
+  background: "white",
   tabIndex: 0,
-  customEmojis: []
+  shouldReturn: false,
+  shouldConvertEmojiToImage: false,
+  customEmojis: [],
+  language: undefined,
 };
 
 export default InputEmojiWithRef;
